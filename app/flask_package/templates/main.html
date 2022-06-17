@@ -1,0 +1,43 @@
+
+
+{% extends "layout.html" %}
+{% block body %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<body>
+
+    <div class="container">
+      <div class="row">
+          <div class="alert-message-warning">
+              <div class=" alert-message-warning">
+                  <h4>
+                      Warning</h4>
+                  <p>
+                    Modifying a MKA is a disruptive process, it might lead to drop frames and/or send unencrypted frames.
+                    <strong> It is recommended to perform this task during a maintenance window</strong>.</p>
+              </div>
+          </div>
+      </div>
+
+
+
+<form action="/data" method = "POST">
+    <label for="text">Enter the IP Address of the MACSec device</label>
+    <dd><input type="text" name="IP" pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$" value="" required>
+    </dd>
+   
+    <input type="submit" value="Submit">
+</form>
+
+</body>
+{% endblock %}

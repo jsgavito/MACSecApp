@@ -1,0 +1,13 @@
+# Example from https://www.gnupg.org/documentation//manuals/gnupg/Unattended-GPG-key-generation.html
+%echo Generating a basic OpenPGP key
+Key-Type: DSA
+Key-Length: 1024
+Subkey-Type: ELG-E
+Subkey-Length: 1024
+Name-Real: Docker Tester
+Name-Email: dockertester@docker.com
+Expire-Date: 0
+Passphrase: gpg_password
+# Do a commit here, so that we can later print "done" :-)
+%commit
+%echo done

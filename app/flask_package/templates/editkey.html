@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block body %}
+{% with messages = get_flashed_messages() %}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+{% endfor %}
+{% endif %}
+{% endwith %}
+<body>
+    <div class="col-md-4 offset-md-4">
+        <div class="card card-body">
+        <form action="/updatekey/<id>" method="POST">
+            <div class="form-group">
+            <dt><label for="text">New HEX Key</label></dt>
+            <input type="text" name='newkey'  pattern="[0-9a-fA-F*]{64}" value="" required placeholder="Hexadecimal string of 64 characters" required class="form-group">
+            </div>
+            <div class="form-group">
+            <dt><label for="text">Key Reg Interval</label></dt>
+            <input type="text" name='interval' pattern="^(0|6[0-5][0-5][0-3][0-5]|[1-5][0-9][0-9][0-9][0-9]|[1-9][0-9]{0,3})$" value="" required placeholder="Values from 30 to 65535" required class="form-group">
+            </div>
+            <div class="form">
+            <dt><button type="submit" class="btn btn-success btn-block">Submit New Key</button></dt>
+            </div>
+        </div>
+    </div>
+</body>
+{% endblock %}

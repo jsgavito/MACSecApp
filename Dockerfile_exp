@@ -1,0 +1,52 @@
+FROM alpine:3.10
+
+ENV USER=docker_user
+ENV HOME=/home/$USER
+
+RUN addgroup -S appgroup && adduser -u 1001 -S $USER -G appgroup
+
+RUN apk add --no-cache --virtual .pynacl_deps build-base python3-dev libffi-dev libxml2-utils libxslt gcc musl-dev libxslt-dev\
+    && pip3 install --upgrade pip \
+    && pip3 install --upgrade setuptools \
+    -- update docker \
+    gnupg\
+    pass
+
+
+RUN wget https://github.com/docker/docker-credential-helpers/releases/download/v0.6.3/docker-credential-pass-v0.6.3-amd64.tar.gz \
+    && tar -xf docker-credential-pass-v0.6.3-amd64.tar.gz \
+    && chmod +x docker-credential-pass \
+    && mv docker-credential-pass /usr/local/bin/ \
+    && rm docker-credential-pass-v0.6.3-amd64.tar.gz
+
+RUN mkdir -p $HOME/.docker/
+COPY config.json $HOME/.docker/
+RUN chown -R $USER:appgroup $HOME/.docker
+RUN chmod -R 755 $HOME/.docker
+
+RUN mkdir -p $HOME/.gnupg/
+RUN chown -R $USER:appgroup $HOME/.gnupg
+RUN chmod -R 700 $HOME/.gnupg
+
+WORKDIR $HOME
+USER $USER
+
+COPY gpg_file.txt .
+
+# Edit the gpg file to add our password and generate the key
+RUN --mount=type=secret,id=gpg_password,uid=1001 cat gpg_file.txt | sed 's/gpg_password/'"`cat /run/secrets/gpg_password`"'/g' | gpg --batch --generate-key
+
+# Generate the pass store by accessing and passing the gpg fingerprint
+RUN pass init $(gpg --list-secret-keys dockertester@docker.com | sed -n '/sec/{n;p}' | sed 's/^[[:space:]]*//g')
+
+# Login to Docker
+ARG DOCKER_USER
+RUN --mount=type=secret,id=docker_password,uid=1001 cat /run/secrets/docker_password | docker login --username $DOCKER_USER --password-stdin
+
+COPY ./app $HOME
+
+RUN pip3 --no-cache-dir install -r requirements.txt
+
+EXPOSE 5000
+
+CMD python3 /app/app.py
